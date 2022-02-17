@@ -45,7 +45,7 @@ namespace WhatsApp_sol
                 //Message_Log msgTxt = (Message_Log)formatter2.Deserialize(stream2);
                 while (stream2.Position < stream2.Length)
                 {
-                    m.Add((Message_Log)formatter.Deserialize(stream2));
+                    m.Add((Message_Log)formatter2.Deserialize(stream2));
                 }
             }  
                
@@ -106,7 +106,8 @@ namespace WhatsApp_sol
                     {
                         string old_name = item.name;
                         Console.WriteLine("Enter Name To Change");
-                        item.name = Console.ReadLine();
+                        string Newname = Console.ReadLine();
+                        item.name = Newname;
                         Console.WriteLine($"\n\n Your Name Is Changed From {old_name} To {item.name}");
 
                     }
@@ -132,30 +133,58 @@ namespace WhatsApp_sol
                 }
             }
         }
+        public bool Check_Password(long num ,string pwdinp)
+        {
+            bool pc=false;
+            client c = WasUserPresent(num);
+            if (c != null)
+            {
+                if(c.pwd == pwdinp)
+                {
+                    pc = true;
+                }
+            }
+            return pc;
+        }
         ~server()
         {
-            //try
-            //{
             FileStream stream = new FileStream("User.txt", mode: FileMode.OpenOrCreate);
             BinaryFormatter formatter = new BinaryFormatter();
-            foreach (client i in users)
+            try
             {
-                formatter.Serialize(stream, i);
-            }
-            stream.Close();
-            
-                FileStream stream2 = new FileStream("Message_Log.txt", mode: FileMode.OpenOrCreate);
-                BinaryFormatter formatter2 = new BinaryFormatter();
-                foreach (Message_Log i in m)
+
+                foreach (client i in users)
                 {
                     formatter.Serialize(stream, i);
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            finally
+            {
                 stream.Close();
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine(ex);
-            //}
+            }
+            FileStream stream2 = new FileStream("Message_Log.txt", mode: FileMode.OpenOrCreate);
+            BinaryFormatter formatter2 = new BinaryFormatter();
+            try
+            {
+
+                foreach (Message_Log i in m)
+                {
+                    formatter2.Serialize(stream2, i);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            finally
+            {
+                stream2.Close();
+            }
         }
 
     }

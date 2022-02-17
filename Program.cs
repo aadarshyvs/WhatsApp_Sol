@@ -10,7 +10,22 @@ namespace WhatsApp_sol
     {
         static server s = new server();
 
-
+        public static string password()
+        {
+            string pwd = null;
+            while (true)
+            {
+                var key = Console.ReadKey(true);
+                
+                if (key.Key == ConsoleKey.Enter)
+                    break;
+                else
+                   Console.Write("*");
+                pwd += key.KeyChar;
+            }
+            Console.WriteLine();
+            return pwd;
+        }
         static void Main(string[] args)
         {
 
@@ -27,13 +42,13 @@ namespace WhatsApp_sol
                         add();
                         break;
                     case 2:
-
                         edit();
                         break;
                     case 3:
                         show();
                         break;
                     case 4:
+                        //ADD PASSWORD FROM HEAR ONWORDS
                         contact_add();
                         break;
                     case 5:
@@ -62,30 +77,44 @@ namespace WhatsApp_sol
             string name = Console.ReadLine();
             Console.WriteLine("Enter The Phone Number : ");
             long phone = Convert.ToInt64(Console.ReadLine());
-
-
-            client c = new client(name, phone, s);
-            //ASK USER TO ADD CONATACTS
-
-            if (s.IsUserPresent(phone))
-            {
-                Console.WriteLine("\n" + phone + " Aldeary exists , ");
-            }
-            else
-            {
-                s.users.Add(c);
-            }
-            //SHOW TEH OPTIONS TO ADD CONTACT
-            //NO OF CONTACTS TO ADD
-            //FOR LOOP FOR THE 3
-            //CONTACT_ADD(C);
-
+ 
+                if (s.IsUserPresent(phone))
+                {
+                    Console.WriteLine("\n" + phone + " Aldeary exists , ");
+                }
+                else
+                {
+                Console.WriteLine("Enter Your Password : ");
+                string pwd = password();
+                Console.WriteLine();
+                Console.WriteLine("Enter Your Password Again To Confirm  : ");
+                string pwdchk = password();
+                if (pwd != pwdchk)
+                {
+                    Console.WriteLine("Password Miss Match ");
+                }
+                else
+                {
+                    client c = new client(name, phone, pwd, s);
+                    s.users.Add(c);
+                }
+                }
+            
         }
         public static void edit()
         {
             Console.WriteLine("Enter The Phone Number : ");
             long phone = Convert.ToInt64(Console.ReadLine());
-            s.EditDetails(phone);
+            Console.WriteLine("Enter Your Password : ");
+            string pwd = password();
+            if (s.Check_Password(phone, pwd))
+            {
+                s.EditDetails(phone);
+            }
+            else
+            {
+                Console.WriteLine("Wrong Password ");
+            }
 
         }
         public static void contact_add()
@@ -96,29 +125,40 @@ namespace WhatsApp_sol
                 client cResult = s.WasUserPresent(u_phone);
                 if (cResult != null)
                 {
-                    Console.WriteLine("Enter The Contact Name : ");
-                    string name = Console.ReadLine();
-                    Console.WriteLine("Enter The Phone Contact Number : ");
-                    long phone = Convert.ToInt64(Console.ReadLine());
-                    if (s.IsUserPresent(phone))
+                    Console.WriteLine("Enter Your Password : ");
+                    string pwd = password();
+                    if (s.Check_Password(u_phone, pwd))
                     {
-                        if (u_phone != phone)
+
+
+                        Console.WriteLine("Enter The Contact Name : ");
+                        string name = Console.ReadLine();
+                        Console.WriteLine("Enter The Phone Contact Number : ");
+                        long phone = Convert.ToInt64(Console.ReadLine());
+                        if (s.IsUserPresent(phone))
                         {
-                            cResult.Contants_List.Add(name, phone);
-                            Console.WriteLine($"Hello {cResult.name} , {phone} Is Added With Name :{name}");
+                            if (u_phone != phone)
+                            {
+                                cResult.Contants_List.Add(name, phone);
+                                Console.WriteLine($"Hello {cResult.name} , {phone} Is Added With Name :{name}");
+                            }
+                            else
+                            {
+                                Console.WriteLine("You Cannot Add Your Phone Number To Your Contact List");
+                            }
                         }
                         else
                         {
-                            Console.WriteLine("You Cannot Add Your Phone Number To Your Contact List");
+                            Console.WriteLine($"{phone} Does Not Exists");
                         }
                     }
-                    else
-                    {
-                        Console.WriteLine($"{phone} Does Not Exists");
-                    }
-
-
+                
+                else
+                {
+                    Console.WriteLine("Wrong Password ");
                 }
+
+            }
                 else
                 {
                     Console.WriteLine("The Number Your Have Entered Does Not Exists ");
@@ -133,7 +173,17 @@ namespace WhatsApp_sol
 
             if (s.IsUserPresent(phone))
             {
-                s.show_User(phone);
+                Console.WriteLine("Enter Your Password : ");
+                string pwd = password();
+                if (s.Check_Password(phone, pwd))
+                {
+                    s.show_User(phone);
+                }
+                else
+                {
+                    Console.WriteLine("Wrong Password ");
+                }
+               
             }
             else
             {
@@ -141,6 +191,7 @@ namespace WhatsApp_sol
             }
 
         }
+        
         public static void contact_view()
         {
             Console.WriteLine("Enter The  Phone Number : ");
@@ -148,10 +199,21 @@ namespace WhatsApp_sol
             client cResult = s.WasUserPresent(u_phone);
             if (cResult != null)
             {
+                Console.WriteLine("Enter Your Password : ");
+                string pwd = password();
+                if (s.Check_Password(u_phone, pwd))
+                {
+                
                 foreach (var item in cResult.Contants_List)
                 {
                     Console.WriteLine($"Name: {item.Key}            Phone: {item.Value}");
                 }
+                }
+                else
+                {
+                    Console.WriteLine("Wrong Password ");
+                }
+
             }
             else
             {
@@ -166,19 +228,30 @@ namespace WhatsApp_sol
             client sender = s.WasUserPresent(s_phone);
             if (sender != null)
             {
-                Console.WriteLine("Enter The  Phone Number To Send Message : ");
-                long r_phone = Convert.ToInt64(Console.ReadLine());
-                client reciver = s.WasUserPresent(r_phone);
-                if (sender != null)
+                Console.WriteLine("Enter Your Password : ");
+                string pwd = password();
+                if (s.Check_Password(s_phone, pwd))
                 {
-                    Console.Write("Enter The Message : ");
-                    string message = Console.ReadLine();
-                    Message_Log msg = new Message_Log(sender, reciver, message, DateTime.Now.ToString("dd MMMM yyyy"), DateTime.Now.ToString("HH: mm:ss"));
-                    s.m.Add(msg);
+
+                    Console.WriteLine("Enter The  Phone Number To Send Message : ");
+                    long r_phone = Convert.ToInt64(Console.ReadLine());
+                    client reciver = s.WasUserPresent(r_phone);
+                    if (sender != null)
+                    {
+                        Console.Write("Enter The Message : ");
+                        string message = Console.ReadLine();
+                        Message_Log msg = new Message_Log(sender, reciver, message, DateTime.Now.ToString("dd MMMM yyyy"), DateTime.Now.ToString("HH: mm:ss"));
+                        s.m.Add(msg);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"The Number : {r_phone} is in valid");
+                    }
+
                 }
                 else
                 {
-                    Console.WriteLine($"The Number : {r_phone} is in valid");
+                    Console.WriteLine("Wrong Password ");
                 }
             }
             else
@@ -195,7 +268,16 @@ namespace WhatsApp_sol
             client validate = s.WasUserPresent(phone);
             if (validate != null)
             {
-                s.Contact_Messages_Log(phone);
+                Console.WriteLine("Enter Your Password : ");
+                string pwd = password();
+                if (s.Check_Password(phone, pwd))
+                {
+                  s.Contact_Messages_Log(phone);
+                }
+                else
+                {
+                    Console.WriteLine("Wrong Password ");
+                }
             }
             else
             {
